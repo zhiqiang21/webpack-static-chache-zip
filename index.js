@@ -92,8 +92,25 @@ ZipStaticWebpackPlugin.prototype.apply = function (compiler) {
     // }
 
     // webpack v4+
-    // if (compiler.hooks && compiler.hooks.done && compiler.hooks.done.tap) {
-    compiler.hooks.done.tap(pluginName, () => {
+
+    compiler.hooks && compiler.hooks.done && compiler.hooks.done.tap(pluginName, () => {
+        this.mergeIncludeAndExclude(this.config.includeFile, this.config.excludeFile);
+
+        this.copyFiles();
+
+        this.createZipBundleInfor();
+
+        const zipFileNameList = zipOfflineFile.zipFiles(this);
+
+        this.info(`Zip file total: ${zipFileNameList.length}`);
+
+        this.createApiBundleInfor(zipFileNameList);
+
+        return;
+    });
+
+
+    compiler.plugin('done', () => {
 
         this.mergeIncludeAndExclude(this.config.includeFile, this.config.excludeFile);
 
@@ -107,11 +124,6 @@ ZipStaticWebpackPlugin.prototype.apply = function (compiler) {
 
         this.createApiBundleInfor(zipFileNameList);
     });
-    // }
-    // else {
-    //     // webpack v2.x
-    //     compiler.plugin('done', callback(that));
-    // }
 };
 
 ZipStaticWebpackPlugin.prototype.success = function (msg) {
@@ -152,8 +164,7 @@ ZipStaticWebpackPlugin.prototype.copyFiles = function () {
     const needCopyFiles = this.deleteExcludeFile(globCopyFiles);
 
     needCopyFiles.forEach(item => {
-
-        const destPath = item.replace('output', `${this.config.zipFileName}/resource`);
+        const destPath = item.replace(this.config.src, `${this.config.zipFileName}/resource`);
 
         if (fs.existsSync(item)) {
             fs.copySync(item, destPath);
@@ -201,24 +212,26 @@ ZipStaticWebpackPlugin.prototype.getFileType = function (path) {
 ZipStaticWebpackPlugin.prototype.deleteExcludeFile = function (files) {
     const excludeFileArr = this.config.excludeFile;
     const includeFileArr = this.config.includeFile;
-    const excludeArr = [];
-    const includeArr = [];
+
+    let excludeArr = [];
+
+    let includeArr = [];
 
     if (excludeFileArr.length === 0) {
-        return files;
-    }
+        excludeArr = files;
+    } else {
+        files.forEach(item => {
+            const contain = [];
 
-    files.forEach(item => {
-        const contain = [];
+            excludeFileArr.forEach(fi => {
+                contain.push(item.indexOf(fi));
+            });
 
-        excludeFileArr.forEach(fi => {
-            contain.push(item.indexOf(fi));
+            if (contain.every(item => item === -1)) {
+                excludeArr.push(item);
+            }
         });
-
-        if (contain.every(item => item === -1)) {
-            excludeArr.push(item);
-        }
-    });
+    }
 
     if (includeFileArr.length === 0) {
         return excludeArr;
