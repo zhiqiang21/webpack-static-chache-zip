@@ -14,12 +14,12 @@ const moment = require('moment');
 const crypto = require('crypto');
 const _ = require('lodash');
 const zipOfflineFile = require('./zip');
-
 const diffMapObj = require('./diff');
 
-const version = moment().format('YYYYMMDDHHmmss');
 
+const version = moment().format('YYYYMMDDHHmmss');
 const pluginName = 'ZipStaticWebpackPlugin';
+
 
 function ZipStaticWebpackPlugin(opts) {
     const defaultCacheFileTypes = ['js', 'html', 'css'];
@@ -38,8 +38,11 @@ function ZipStaticWebpackPlugin(opts) {
     this.config.compileVersion = version;
 
 
-    // 不缓存的文件和目录  没有include  配置项主要是考虑会有公共的文件放在公共的路径下
+    // 不缓存的文件和目录
     this.config.excludeFile = opts.excludeFile || [];
+
+    // 需要缓存的目录 优先级高于 exclude
+    this.config.includeFile = opts.includeFile || [];
 
     // 默认缓存文件的类型
     this.config.cacheFileTypes = opts.cacheFileTypes ? opts.cacheFileTypes.concat(defaultCacheFileTypes) : defaultCacheFileTypes;
@@ -76,6 +79,8 @@ ZipStaticWebpackPlugin.prototype.apply = function (compiler) {
     }
 
     function callback(_this) {
+        _this.mergeIncludeAndExclude(_this.config.includeFile, _this.config.excludeFile);
+
         _this.copyFiles();
 
         _this.createZipBundleInfor();
@@ -146,6 +151,20 @@ ZipStaticWebpackPlugin.prototype.copyFiles = function () {
 };
 
 
+// 合并 include 和 exclude  include 优先级高于 exclude
+ZipStaticWebpackPlugin.prototype.mergeIncludeAndExclude = function (includeArr, excludeArr) {
+    const Arr = [];
+
+    excludeArr.forEach(item => {
+        if (!includeArr.includes(item)) {
+            Arr.push(item);
+        }
+    });
+
+    this.config.excludeFile = Arr;
+
+};
+
 // 获取目录下所有文件的路径信息
 ZipStaticWebpackPlugin.prototype.iterateFiles = function (folderPath, cb) {
     let files = glob.sync(path.resolve(folderPath, '**/*'));
@@ -168,10 +187,12 @@ ZipStaticWebpackPlugin.prototype.getFileType = function (path) {
 // 删除 不包含的目录和文件
 ZipStaticWebpackPlugin.prototype.deleteExcludeFile = function (files) {
     const excludeFileArr = this.config.excludeFile;
-    const resultArr = [];
+    const includeFileArr = this.config.includeFileArr;
+    const excludeArr = [];
+    const includeArr = [];
 
     if (excludeFileArr.length === 0) {
-        return [];
+        return files;
     }
 
     files.forEach(item => {
@@ -182,11 +203,28 @@ ZipStaticWebpackPlugin.prototype.deleteExcludeFile = function (files) {
         });
 
         if (contain.every(item => item === -1)) {
-            resultArr.push(item);
+            excludeArr.push(item);
         }
     });
 
-    return resultArr;
+    if (includeFileArr.length === 0) {
+        return excludeArr;
+    }
+
+    excludeArr.forEach(item => {
+        const include = [];
+
+        includeFileArr.forEach(path => {
+            include.push(item.indexOf(path));
+        });
+
+        if (!include.every(item => item === -1)) {
+            includeArr.push(item);
+        }
+    });
+
+
+    return includeArr;
 };
 
 // 计算文件的md5值
