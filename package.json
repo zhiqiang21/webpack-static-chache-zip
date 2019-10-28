@@ -1,0 +1,63 @@
+{
+  "name": "webpack-static-chache-zip",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [
+
+  ],
+  "homepage": "",
+  "bugs": {
+    "url": ""
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "hpuhouzhiqiang@gmail.com",
+  "files": [
+    "bin",
+    "libs",
+    "index.js"
+  ],
+  "scripts": {
+
+  },
+  "dependencies": {
+    "archiver": "^2.1.1",
+    "bluebird": "^3.5.1",
+    "chalk": "^2.3.2",
+    "fs-extra": "^5.0.0",
+    "glob": "^7.1.2",
+    "klaw-sync": "^3.0.2",
+    "lodash": "^4.17.15",
+    "moment": "^2.24.0",
+    "shortid": "^2.2.15"
+  },
+  "devDependencies": {
+    "async": "^2.6.0",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.4",
+    "babel-preset-es2015": "^6.24.1",
+    "copy-webpack-plugin-hash": "^6.0.0",
+    "css-loader": "^0.28.11",
+    "decompress": "^4.2.0",
+    "expect.js": "^0.3.1",
+    "file-loader": "^1.1.11",
+    "html-loader": "^0.5.5",
+    "html-res-webpack-plugin": "^4.0.0",
+    "mini-css-extract-plugin": "^0.4.0",
+    "mocha": "^5.0.5",
+    "mocha-lcov-reporter": "^1.3.0",
+    "optimize-css-assets-webpack-plugin": "^4.0.0",
+    "sinon": "^4.5.0",
+    "style-loader": "^0.20.3",
+    "uglifyjs-webpack-plugin": "^1.2.4",
+    "url-loader": "^1.0.1",
+    "webpack": "^4.5.0"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=6.0.0",
+    "npm": ">=3.0.0"
+  }
+}
