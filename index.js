@@ -74,8 +74,7 @@ ZipStaticWebpackPlugin.prototype.apply = function (compiler) {
         return;
     }
 
-    compiler.hooks.done.tap(pluginName, () => {
-
+    function callback() {
         this.copyFiles();
 
         this.createZipBundleInfor();
@@ -85,7 +84,15 @@ ZipStaticWebpackPlugin.prototype.apply = function (compiler) {
         this.info(`Zip file total: ${zipFileNameList.length} `);
 
         this.createApiBundleInfor(zipFileNameList);
-    });
+    }
+
+    // webpack v4+
+    if (compiler.hooks && compiler.hooks.done && compiler.hooks.done.tap) {
+        compiler.hooks.done.tap(pluginName, callback());
+    } else {
+        // webpack v2.x
+        compiler.plugin('done', callback());
+    }
 };
 
 ZipStaticWebpackPlugin.prototype.success = function (msg) {
@@ -163,7 +170,7 @@ ZipStaticWebpackPlugin.prototype.deleteExcludeFile = function (files) {
     const resultArr = [];
 
     if (excludeFileArr.length === 0) {
-        return;
+        return [];
     }
 
     files.forEach(item => {
