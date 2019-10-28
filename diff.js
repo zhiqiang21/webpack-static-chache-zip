@@ -71,17 +71,19 @@ function versionDiff(akPlugin, current, next) {
 
             if (curr.md5 === next.md5) {
                 curr.type = 2;
-                // indexArr.push(m);
             }
         }
     }
 
-    // 找出两个版本查 需要删除的文件做标记
+    // 找出两个版本差 需要删除的文件做标记
     for (let n = 0; n < nextResource.length; n++) {
         const element = nextResource[n];
 
         if (!currFileMd5Arr.includes(element.md5)) {
             element.action = 2;
+
+            // 需要删除的文件也不需要拷贝到zip目录
+            element.type = 2;
             deleteArr.push(element);
         }
     }
@@ -97,6 +99,7 @@ function createBundleFile(akPlugin, currResource) {
     fs.outputJsonSync(diffBundlePath, {
         'module': akPlugin.config.module,
         'version': akPlugin.config.compileVersion,
+        // 1. 全量包  2.增量包
         'type': 2,
         'resource': currResource
     });

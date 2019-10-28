@@ -56,7 +56,7 @@ function ZipStaticWebpackPlugin(opts) {
     this.config.cdnHost = opts.cdnHost || opts.pageHost || '';
     // path url
     this.config.urlPath = opts.urlPath || '';
-    this.config.src = opts.src || 'src';
+    this.config.src = opts.src || 'output';
     this.config.zipConfig = opts.zipConfig || {};
     this.config.keepOffline = opts.keepOffline || false;
     this.config.beforeCopy = opts.beforeCopy || emptyFunc;
@@ -71,34 +71,47 @@ function emptyFunc() {
 }
 
 ZipStaticWebpackPlugin.prototype.apply = function (compiler) {
-    const that = this;
 
     if (!this.config.module) {
         console.log(chalk.red('[zip-static-plugin]  ' + 'module can\'t empty'));
         return;
     }
 
-    function callback(_this) {
-        _this.mergeIncludeAndExclude(_this.config.includeFile, _this.config.excludeFile);
+    // function callback(_this) {
+    //     _this.mergeIncludeAndExclude(_this.config.includeFile, _this.config.excludeFile);
 
-        _this.copyFiles();
+    //     _this.copyFiles();
 
-        _this.createZipBundleInfor();
+    //     _this.createZipBundleInfor();
 
-        const zipFileNameList = zipOfflineFile.zipFiles(_this);
+    //     const zipFileNameList = zipOfflineFile.zipFiles(_this);
 
-        _this.info(`Zip file total: ${zipFileNameList.length} `);
+    //     _this.info(`Zip file total: ${zipFileNameList.length} `);
 
-        _this.createApiBundleInfor(zipFileNameList);
-    }
+    //     _this.createApiBundleInfor(zipFileNameList);
+    // }
 
     // webpack v4+
-    if (compiler.hooks && compiler.hooks.done && compiler.hooks.done.tap) {
-        compiler.hooks.done.tap(pluginName, callback(that));
-    } else {
-        // webpack v2.x
-        compiler.plugin('done', callback(that));
-    }
+    // if (compiler.hooks && compiler.hooks.done && compiler.hooks.done.tap) {
+    compiler.hooks.done.tap(pluginName, () => {
+
+        this.mergeIncludeAndExclude(this.config.includeFile, this.config.excludeFile);
+
+        this.copyFiles();
+
+        this.createZipBundleInfor();
+
+        const zipFileNameList = zipOfflineFile.zipFiles(this);
+
+        this.info(`Zip file total: ${zipFileNameList.length}`);
+
+        this.createApiBundleInfor(zipFileNameList);
+    });
+    // }
+    // else {
+    //     // webpack v2.x
+    //     compiler.plugin('done', callback(that));
+    // }
 };
 
 ZipStaticWebpackPlugin.prototype.success = function (msg) {
@@ -187,7 +200,7 @@ ZipStaticWebpackPlugin.prototype.getFileType = function (path) {
 // 删除 不包含的目录和文件
 ZipStaticWebpackPlugin.prototype.deleteExcludeFile = function (files) {
     const excludeFileArr = this.config.excludeFile;
-    const includeFileArr = this.config.includeFileArr;
+    const includeFileArr = this.config.includeFile;
     const excludeArr = [];
     const includeArr = [];
 
@@ -249,6 +262,8 @@ ZipStaticWebpackPlugin.prototype.createZipBundleInfor = function () {
 
     _.set(jsonResult, 'module', this.config.module);
     _.set(jsonResult, 'version', version);
+
+    // type 离线包类型 1. 全量包  2.增量包
     _.set(jsonResult, 'type', 1);
     _.set(jsonResult, 'diffversion', []);
     _.set(jsonResult, 'resource', []);
@@ -276,7 +291,7 @@ ZipStaticWebpackPlugin.prototype.createZipBundleInfor = function () {
             _.set(obj, 'file', filePath);
             _.set(obj, 'action', 1);
 
-            // 1.默认是新增  2.是旧文件
+            // 1.默认是新增  2.是旧文件  做diff的时候使用的字段
             _.set(obj, 'type', 1);
 
             jsonResult.resource.push(obj);
