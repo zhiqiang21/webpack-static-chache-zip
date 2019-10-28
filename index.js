@@ -68,30 +68,31 @@ function emptyFunc() {
 }
 
 ZipStaticWebpackPlugin.prototype.apply = function (compiler) {
+    const that = this;
 
     if (!this.config.module) {
         console.log(chalk.red('[zip-static-plugin]  ' + 'module can\'t empty'));
         return;
     }
 
-    function callback() {
-        this.copyFiles();
+    function callback(_this) {
+        _this.copyFiles();
 
-        this.createZipBundleInfor();
+        _this.createZipBundleInfor();
 
-        const zipFileNameList = zipOfflineFile.zipFiles(this);
+        const zipFileNameList = zipOfflineFile.zipFiles(_this);
 
-        this.info(`Zip file total: ${zipFileNameList.length} `);
+        _this.info(`Zip file total: ${zipFileNameList.length} `);
 
-        this.createApiBundleInfor(zipFileNameList);
+        _this.createApiBundleInfor(zipFileNameList);
     }
 
     // webpack v4+
     if (compiler.hooks && compiler.hooks.done && compiler.hooks.done.tap) {
-        compiler.hooks.done.tap(pluginName, callback());
+        compiler.hooks.done.tap(pluginName, callback(that));
     } else {
         // webpack v2.x
-        compiler.plugin('done', callback());
+        compiler.plugin('done', callback(that));
     }
 };
 
