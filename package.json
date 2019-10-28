@@ -1,6 +1,6 @@
 {
   "name": "webpack-static-chache-zip",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "keywords": [
 
@@ -15,9 +15,10 @@
   },
   "author": "hpuhouzhiqiang@gmail.com",
   "files": [
-    "bin",
-    "libs",
-    "index.js"
+    "diff.js",
+    "getDir.js",
+    "index.js",
+    "zip.js"
   ],
   "scripts": {
 
