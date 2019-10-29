@@ -97,7 +97,7 @@ function createBundleFile(akPlugin, currResource) {
 
     copyBundleFile(akPlugin, shortId, currResource);
     fs.outputJsonSync(diffBundlePath, {
-        'module': akPlugin.config.module,
+        'name': akPlugin.config.module,
         'version': akPlugin.config.compileVersion,
         // 1. 全量包  2.增量包
         'type': 2,
