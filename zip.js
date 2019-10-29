@@ -11,7 +11,7 @@ const klawSync = require('klaw-sync');
 const getPathDir = require('./getDir');
 
 
-exports.zipFiles = function (akPlugin) {
+exports.zipFiles = function (akPlugin, afterZipFn) {
 
     const beforeZip = akPlugin.config.beforeZip;
     const afterZip = akPlugin.config.afterZip;
@@ -50,7 +50,9 @@ exports.zipFiles = function (akPlugin) {
         var archive = archiver('zip', akPlugin.config.zipConfig);
 
         output.on('close', () => {
-            akPlugin.info(`Zip file Name: ${zipFileName} file size: ${Math.floor(archive.pointer() / 1024)} KB\n`);
+            akPlugin.info(`Zip file Name: [${zipFileName}] file size: ${Math.floor(archive.pointer() / 1024)} KB\n`);
+
+            afterZipFn(zipFileNameList, akPlugin);
 
             // del offline folder
             let offlinePath = path.resolve(akPlugin.config.offlineDir);

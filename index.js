@@ -84,11 +84,11 @@ ZipStaticWebpackPlugin.prototype.apply = function (compiler) {
 
         this.createZipBundleInfor();
 
-        const zipFileNameList = zipOfflineFile.zipFiles(this);
+        const zipFileNameList = zipOfflineFile.zipFiles(this, this.createApiBundleInfor);
 
         this.info(`Zip file total: ${zipFileNameList.length}`);
 
-        this.createApiBundleInfor(zipFileNameList);
+        // this.createApiBundleInfor(zipFileNameList);
     };
 
     if (compiler.hooks && compiler.hooks.done) {
@@ -177,6 +177,7 @@ ZipStaticWebpackPlugin.prototype.iterateFiles = function (folderPath, cb) {
 };
 
 
+// 获取文件类型
 ZipStaticWebpackPlugin.prototype.getFileType = function (path) {
     return path.substr(path.lastIndexOf('.'));
 };
@@ -227,36 +228,19 @@ ZipStaticWebpackPlugin.prototype.deleteExcludeFile = function (files) {
     return includeArr;
 };
 
-// 计算文件的md5值
-ZipStaticWebpackPlugin.prototype.createMd5Hash = function (path) {
-
-    // const buffer = fs.readFileSync(path);
-    // const fsHash = crypto.createHash('md5');
-
-    // fsHash.update(buffer);
-
-    // return fsHash.digest('hex');
-
-    return md5File.sync(path);
-
-};
-
-
 //  将zip包的信息写入bundle.json文件
-
 ZipStaticWebpackPlugin.prototype.createZipBundleInfor = function () {
     const jsonResult = {};
     const cwd = process.cwd();
     const offlineDir = path.resolve(cwd, this.config.zipFileName);
 
-    _.set(jsonResult, 'module', this.config.module);
+    _.set(jsonResult, 'name', this.config.module);
     _.set(jsonResult, 'version', version);
 
     // type 离线包类型 1. 全量包  2.增量包
     _.set(jsonResult, 'type', 1);
     _.set(jsonResult, 'diffversion', []);
     _.set(jsonResult, 'resource', []);
-
 
     this.iterateFiles(this.config.zipFileName, function (files) {
 
@@ -265,7 +249,7 @@ ZipStaticWebpackPlugin.prototype.createZipBundleInfor = function () {
             const relativePath = item.replace(`${offlineDir}/resource/`, this.config.urlPath);
             const filePath = item.replace(`${offlineDir}/resource/`, '');
 
-            _.set(obj, 'md5', this.createMd5Hash(item));
+            _.set(obj, 'md5', md5File.sync(item));
 
             if (item.indexOf('.html') > 0) {
                 _.set(obj, 'url', `${this.config.pageHost}${relativePath}`);
@@ -293,37 +277,54 @@ ZipStaticWebpackPlugin.prototype.createZipBundleInfor = function () {
 };
 
 // 将打包的信息写入  api.budnle.json
-ZipStaticWebpackPlugin.prototype.createApiBundleInfor = function (list) {
+ZipStaticWebpackPlugin.prototype.createApiBundleInfor = function (list, that) {
     const cwd = process.cwd();
     const resultJson = {};
-    const offZipFileList = glob.sync(path.resolve(cwd, `${this.config.desZipPath}/**/*.zip`));
+    const offZipFileList = glob.sync(path.resolve(cwd, `${that.config.desZipPath}/**/*.zip`));
 
-    _.set(resultJson, 'module', this.config.module);
-    _.set(resultJson, 'terminal_id', this.config.terminalid);
-    _.set(resultJson, 'data_type', this.config.datatype);
+    _.set(resultJson, 'module', that.config.module);
+    _.set(resultJson, 'terminal_id', that.config.terminalid);
+    _.set(resultJson, 'version', version);
+    _.set(resultJson, 'data_type', that.config.datatype);
     _.set(resultJson, 'diff_list', []);
 
+    let allMd5 = '';
+
+    let allUrl = '';
 
     offZipFileList.forEach(zipFile => {
         const zipFileName = zipFile.substring(zipFile.lastIndexOf('/') + 1);
-        const zipCdnPath = `${this.config.cdnHost}${this.config.urlPath}offzip`;
-
+        const zipCdnPath = `${that.config.cdnHost}${that.config.urlPath}offzip`;
 
         if (list.includes(zipFileName)) {
             const zipVersion = zipFileName.indexOf('offline') >= 0 ? '-1' : version;
-            const offlineMd5 = this.createMd5Hash(zipFile);
+
+            let md5Hash = md5File.sync(zipFile);
 
             resultJson.diff_list.push({
                 version: zipVersion,
                 url: `${zipCdnPath}/${zipFileName}`,
-                md5: offlineMd5
+                md5: md5Hash
             });
+
+            // 缓存全量包的信息
+            if (zipVersion === '-1') {
+                allMd5 = md5Hash;
+                allUrl = `${zipCdnPath}/${zipFileName}`;
+            }
         }
 
+        // 如果当前只有一个offline版本将 -1版本和当前最新的版本都设置为全量
+        if (list.length === 1) {
+            resultJson.diff_list.push({
+                version: version,
+                url: allUrl,
+                md5: allMd5
+            });
+        }
     });
 
-
-    fs.outputJsonSync(`${cwd}/${this.config.src}/offzip/bundle.json`, resultJson);
+    fs.outputJsonSync(`${cwd}/${that.config.src}/offzip/bundle.json`, resultJson);
 
 };
 
