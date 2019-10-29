@@ -22,10 +22,6 @@ exports.zipFiles = function (akPlugin) {
 
     const needZipDirList = getPathDir.getDir(akPlugin.config.offlineDir);
 
-    console.log('***************needZipDirList**************');
-    console.log(`needZipDirList`, needZipDirList);
-    console.log('*******************************');
-
     needZipDirList.forEach(zipDir => {
         const zipFileName = zipDir.substring(zipDir.lastIndexOf('/') + 1);
 
@@ -54,7 +50,7 @@ exports.zipFiles = function (akPlugin) {
         var archive = archiver('zip', akPlugin.config.zipConfig);
 
         output.on('close', () => {
-            akPlugin.info('Zip file total size: ' + Math.floor(archive.pointer() / 1024) + 'KB\n');
+            akPlugin.info(`Zip file Name: ${zipFileName} file size: ${Math.floor(archive.pointer() / 1024)} KB\n`);
 
             // del offline folder
             let offlinePath = path.resolve(akPlugin.config.offlineDir);

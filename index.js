@@ -77,53 +77,27 @@ ZipStaticWebpackPlugin.prototype.apply = function (compiler) {
         return;
     }
 
-    // function callback(_this) {
-    //     _this.mergeIncludeAndExclude(_this.config.includeFile, _this.config.excludeFile);
+    const pluginCallBack = () => {
+        this.mergeIncludeAndExclude(this.config.includeFile, this.config.excludeFile);
 
-    //     _this.copyFiles();
+        this.copyFiles();
 
-    //     _this.createZipBundleInfor();
+        this.createZipBundleInfor();
 
-    //     const zipFileNameList = zipOfflineFile.zipFiles(_this);
+        const zipFileNameList = zipOfflineFile.zipFiles(this);
 
-    //     _this.info(`Zip file total: ${zipFileNameList.length} `);
+        this.info(`Zip file total: ${zipFileNameList.length}`);
 
-    //     _this.createApiBundleInfor(zipFileNameList);
-    // }
+        this.createApiBundleInfor(zipFileNameList);
+    };
 
+    if (compiler.hooks && compiler.hooks.done) {
     // webpack v4+
-
-    compiler.hooks && compiler.hooks.done && compiler.hooks.done.tap(pluginName, () => {
-        this.mergeIncludeAndExclude(this.config.includeFile, this.config.excludeFile);
-
-        this.copyFiles();
-
-        this.createZipBundleInfor();
-
-        const zipFileNameList = zipOfflineFile.zipFiles(this);
-
-        this.info(`Zip file total: ${zipFileNameList.length}`);
-
-        this.createApiBundleInfor(zipFileNameList);
-
-        return;
-    });
-
-
-    compiler.plugin('done', () => {
-
-        this.mergeIncludeAndExclude(this.config.includeFile, this.config.excludeFile);
-
-        this.copyFiles();
-
-        this.createZipBundleInfor();
-
-        const zipFileNameList = zipOfflineFile.zipFiles(this);
-
-        this.info(`Zip file total: ${zipFileNameList.length}`);
-
-        this.createApiBundleInfor(zipFileNameList);
-    });
+        compiler.hooks && compiler.hooks.done && compiler.hooks.done.tap(pluginName, pluginCallBack);
+    } else {
+    // webpack v2
+        compiler.plugin('done', pluginCallBack);
+    }
 };
 
 ZipStaticWebpackPlugin.prototype.success = function (msg) {
