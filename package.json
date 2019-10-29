@@ -2,9 +2,7 @@
   "name": "webpack-static-chache-zip",
   "version": "1.0.6",
   "description": "",
-  "keywords": [
-
-  ],
+  "keywords": [],
   "homepage": "",
   "bugs": {
     "url": ""
@@ -20,9 +18,7 @@
     "index.js",
     "zip.js"
   ],
-  "scripts": {
-
-  },
+  "scripts": {},
   "dependencies": {
     "archiver": "^2.1.1",
     "bluebird": "^3.5.1",
@@ -31,6 +27,7 @@
     "glob": "^7.1.2",
     "klaw-sync": "^3.0.2",
     "lodash": "^4.17.15",
+    "md5-file": "^4.0.0",
     "moment": "^2.24.0",
     "shortid": "^2.2.15"
   },

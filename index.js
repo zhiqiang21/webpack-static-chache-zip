@@ -11,7 +11,7 @@ const chalk = require('chalk');
 const glob = require('glob');
 
 const moment = require('moment');
-const crypto = require('crypto');
+const md5File = require('md5-file');
 const _ = require('lodash');
 const zipOfflineFile = require('./zip');
 const diffMapObj = require('./diff');
@@ -256,12 +256,14 @@ ZipStaticWebpackPlugin.prototype.deleteExcludeFile = function (files) {
 // 计算文件的md5值
 ZipStaticWebpackPlugin.prototype.createMd5Hash = function (path) {
 
-    const buffer = fs.readFileSync(path);
-    const fsHash = crypto.createHash('md5');
+    // const buffer = fs.readFileSync(path);
+    // const fsHash = crypto.createHash('md5');
 
-    fsHash.update(buffer);
+    // fsHash.update(buffer);
 
-    return fsHash.digest('hex');
+    // return fsHash.digest('hex');
+
+    return md5File.sync(path);
 
 };
 
