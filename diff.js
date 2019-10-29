@@ -41,14 +41,21 @@ exports.createDiffInfo = function (akPlugin, newVersionNum, newVersionInfo) {
     // 只对5个版本做diff
     floatVersion.length > 5 && (floatVersion.length = 5);
 
-    floatVersion.forEach((item, index) => {
-        versionDiff(akPlugin, newVersionInfo, diffInfoJson[item]);
+    floatVersion.forEach(item => {
+        versionDiff(akPlugin, newVersionInfo, diffInfoJson[item], item);
     });
 
 };
 
 
-function versionDiff(akPlugin, current, next) {
+/**
+ * 对两个版本做diff
+ * @param {*} akPlugin
+ * @param {*} current 当前最新的版本信息
+ * @param {*} next  需要做diff的版本信息
+ * @param {8} nextV 需要做diff的版本号
+ */
+function versionDiff(akPlugin, current, next, nextV) {
     const currResource = _.get(current, 'resource', []);
     const nextResource = _.get(next, 'resource', []);
     const currFileMd5Arr = [];
@@ -88,14 +95,14 @@ function versionDiff(akPlugin, current, next) {
         }
     }
 
-    createBundleFile(akPlugin, currResource.concat(deleteArr));
+    createBundleFile(akPlugin, currResource.concat(deleteArr), nextV);
 }
 
-function createBundleFile(akPlugin, currResource) {
+function createBundleFile(akPlugin, currResource, nextV) {
     const shortId = shortid.generate();
-    const diffBundlePath = path.join(cwd, 'offline', `diff.${shortId}/bundle.json`);
+    const diffBundlePath = path.join(cwd, 'offline', `diff.${shortId}.${nextV}/bundle.json`);
 
-    copyBundleFile(akPlugin, shortId, currResource);
+    copyBundleFile(akPlugin, shortId, currResource, nextV);
     fs.outputJsonSync(diffBundlePath, {
         'name': akPlugin.config.module,
         'version': akPlugin.config.compileVersion,
@@ -106,10 +113,10 @@ function createBundleFile(akPlugin, currResource) {
 
 }
 
-function copyBundleFile(akPlugin, diffId, filesInfo) {
+function copyBundleFile(akPlugin, diffId, filesInfo, nextV) {
 
     filesInfo.forEach(item => {
-        const to = path.join(cwd, `offline/diff.${diffId}/resource/${item.file}`);
+        const to = path.join(cwd, `offline/diff.${diffId}.${nextV}/resource/${item.file}`);
         const from = path.join(cwd, `${akPlugin.config.src}/${item.file}`);
 
         if (fs.existsSync(from) && item.type === 1) {

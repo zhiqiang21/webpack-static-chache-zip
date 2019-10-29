@@ -84,11 +84,8 @@ ZipStaticWebpackPlugin.prototype.apply = function (compiler) {
 
         this.createZipBundleInfor();
 
-        const zipFileNameList = zipOfflineFile.zipFiles(this, this.createApiBundleInfor);
+        zipOfflineFile.zipFiles(this, this.createApiBundleInfor);
 
-        this.info(`Zip file total: ${zipFileNameList.length}`);
-
-        // this.createApiBundleInfor(zipFileNameList);
     };
 
     if (compiler.hooks && compiler.hooks.done) {
@@ -296,13 +293,15 @@ ZipStaticWebpackPlugin.prototype.createApiBundleInfor = function (list, that) {
         const zipFileName = zipFile.substring(zipFile.lastIndexOf('/') + 1);
         const zipCdnPath = `${that.config.cdnHost}${that.config.urlPath}offzip`;
 
+        let zipDiffVersion = zipFileName.split('.')[2];
+
         if (list.includes(zipFileName)) {
             const zipVersion = zipFileName.indexOf('offline') >= 0 ? '-1' : version;
 
             let md5Hash = md5File.sync(zipFile);
 
             resultJson.diff_list.push({
-                version: zipVersion,
+                version: zipVersion === '-1' ? '-1' : zipDiffVersion,
                 url: `${zipCdnPath}/${zipFileName}`,
                 md5: md5Hash
             });
