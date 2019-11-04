@@ -91,13 +91,21 @@ function versionDiff(akPlugin, current, next, nextV) {
 
             // 需要删除的文件也不需要拷贝到zip目录
             element.type = 2;
-            deleteArr.push(element);
+
+            // 过滤掉html旧文件信息，防止客户端删除旧文件时将新文件也删除
+            (element.url.indexOf('.html') >= 0) || (deleteArr.push(element));
         }
     }
 
     createBundleFile(akPlugin, currResource.concat(deleteArr), nextV);
 }
 
+/**
+ *
+ * @param {*} akPlugin
+ * @param {*} currResource
+ * @param {*} nextV
+ */
 function createBundleFile(akPlugin, currResource, nextV) {
     const shortId = shortid.generate();
     const diffBundlePath = path.join(cwd, 'offline', `diff.${shortId}.${nextV}/bundle.json`);
@@ -113,6 +121,15 @@ function createBundleFile(akPlugin, currResource, nextV) {
 
 }
 
+
+/**
+ *
+ *
+ * @param {*} akPlugin
+ * @param {*} diffId
+ * @param {*} filesInfo
+ * @param {*} nextV
+ */
 function copyBundleFile(akPlugin, diffId, filesInfo, nextV) {
 
     filesInfo.forEach(item => {

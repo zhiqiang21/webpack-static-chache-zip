@@ -28,11 +28,21 @@ const AkWebpackPlugin = require('webpack-static-chache-zip');
     'src': 'output',
     // TODO: 是否保留生成的离线包文件夹(zip包的源文件)  目前不支持
     // 'keepOffline': true,
-    // 业务名称，比如乘客端钱包，不能重复 具体查看wiki  http://wiki.intra.xiaojukeji.com/pages/viewpage.action?pageId=118882082
-    'terminalid': [],
 
     // datatype: [必填] 1（Android乘客端），2（Android司机端），101（iOS乘客端），102（iOS司机端）
-    'datatype': [],
+    // terminal_id 业务名称，比如乘客端钱包，不能重复 具体查看wiki  http://wiki.intra.xiaojukeji.com/pages/viewpage.action?pageId=118882082
+    // 如果存在一个data_type 对应多个terminal_id 的情况。 可以按照下面的方法以数组对象的方式列出来
+    'datatype': [
+        {
+            data_type: 1
+            terminal_id: 2
+        },
+        {
+            data_type: 1
+            terminal_id: 2
+        }
+        ...
+    ],
 
     // 想要包含的文件路径，模糊匹配，优先级高于  excludeFile
     'includeFile': [
@@ -61,22 +71,22 @@ const AkWebpackPlugin = require('webpack-static-chache-zip');
     // 页面域名 ,可以配置多个域名，主要适用于一个文件上线后可能被多个域名使用的场景
     // 比如： https://aaaa.com/a.html 和 https://bbbb.com/a.html  其实访问是同一个文件只是由于业务场景的不同使用不同的域名
     'pageHost': 'https://page.didiglobal.com',
-    
-    // urlpath 
+
+    // urlpath
     'urlPath': '/global/passenger-wallet/',
 
     // cdn域名 静态文件域名（js/css/html） 如果不配置或者设置为空数组会默认使用pageHost
     'cdnHost': 'https://static.didiglobal.com',
-    
+
     // cdnpath 如果不设置会默认使用 urlPath
     'cdnPath': '',
-    
+
     // zip文件的域名如果不设置会默认使用 cdnHost
     'zipHost': '',
-    
+
     // zipPath  如果不设置会默认使用cdnPath
     'zipPath': '',
-    
+
     // 压缩参数，详参 https://archiverjs.com
     'zipConfig': {zlib: {level: 9} },
     // 下列回调方法，可以直接使用this.fs (fs-extra), this.success, this.info, this.warn, this.alert
