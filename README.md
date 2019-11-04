@@ -58,14 +58,25 @@ const AkWebpackPlugin = require('webpack-static-chache-zip');
     // 接入是也请登记自己的module
     'module': 'passenger-wallet',
 
-    // 页面域名
+    // 页面域名 ,可以配置多个域名，主要适用于一个文件上线后可能被多个域名使用的场景
+    // 比如： https://aaaa.com/a.html 和 https://bbbb.com/a.html  其实访问是同一个文件只是由于业务场景的不同使用不同的域名
     'pageHost': 'https://page.didiglobal.com',
-
-    // cdn域名 如果不配置会默认这是为跟页面域名相同
-    'cdnHost': 'https://static.didiglobal.com',
-
-    // urlpath 注意开始和结尾都需要  /
+    
+    // urlpath 
     'urlPath': '/global/passenger-wallet/',
+
+    // cdn域名 静态文件域名（js/css/html） 如果不配置或者设置为空数组会默认使用pageHost
+    'cdnHost': 'https://static.didiglobal.com',
+    
+    // cdnpath 如果不设置会默认使用 urlPath
+    'cdnPath': '',
+    
+    // zip文件的域名如果不设置会默认使用 cdnHost
+    'zipHost': '',
+    
+    // zipPath  如果不设置会默认使用cdnPath
+    'zipPath': '',
+    
     // 压缩参数，详参 https://archiverjs.com
     'zipConfig': {zlib: {level: 9} },
     // 下列回调方法，可以直接使用this.fs (fs-extra), this.success, this.info, this.warn, this.alert

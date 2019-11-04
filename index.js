@@ -52,10 +52,23 @@ function ZipStaticWebpackPlugin(opts) {
     this.config.module = opts.module || '';
     // 页面域名
     this.config.pageHost = opts.pageHost || '';
-    // cdn域名
-    this.config.cdnHost = opts.cdnHost || opts.pageHost || '';
+
     // path url
     this.config.urlPath = opts.urlPath || '';
+
+    // cdn域名
+    this.config.cdnHost = opts.cdnHost || opts.pageHost || '';
+
+    // cdn path
+    this.config.cdnPath = opts.cdnPath || opts.urlPath || '';
+
+    // zipfile
+    this.config.zipHost = opts.zipHost || opts.cdnHost || '';
+
+    //zip path
+    this.config.zipPath = opts.zipPath || opts.cdnPath || '';
+
+    //编译产出目录
     this.config.src = opts.src || 'output';
     this.config.zipConfig = opts.zipConfig || {};
     this.config.keepOffline = opts.keepOffline || false;
@@ -135,7 +148,7 @@ ZipStaticWebpackPlugin.prototype.copyFiles = function () {
     const needCopyFiles = this.deleteExcludeFile(globCopyFiles);
 
     needCopyFiles.forEach(item => {
-        const destPath = item.replace(this.config.src, `${this.config.zipFileName}/resource`);
+        const destPath = item.replace(this.config.src, path.join(this.config.zipFileName, 'resource'));
 
         if (fs.existsSync(item)) {
             fs.copySync(item, destPath);
@@ -249,13 +262,13 @@ ZipStaticWebpackPlugin.prototype.createZipBundleInfor = function () {
             _.set(obj, 'md5', md5File.sync(item));
 
             if (item.indexOf('.html') > 0) {
-                _.set(obj, 'url', `${this.config.pageHost}${relativePath}`);
+                _.set(obj, 'url', path.join(this.config.pageHost, relativePath));
             }
 
             if (this.config.cdnHost && item.indexOf('.html') < 0) {
-                _.set(obj, 'url', `${this.config.cdnHost}${relativePath}`);
+                _.set(obj, 'url', path.join(this.config.cdnHost, relativePath));
             } else {
-                _.set(obj, 'url', `${this.config.pageHost}${relativePath}`);
+                _.set(obj, 'url', path.join(this.config.pageHost, relativePath));
             }
 
             _.set(obj, 'file', filePath);
@@ -267,7 +280,7 @@ ZipStaticWebpackPlugin.prototype.createZipBundleInfor = function () {
             jsonResult.resource.push(obj);
         });
 
-        fs.outputJsonSync(`${offlineDir}/bundle.json`, jsonResult);
+        fs.outputJsonSync(path.join(offlineDir, 'bundle.json'), jsonResult);
 
         diffMapObj.createDiffInfo(this, version, jsonResult);
     });
@@ -291,7 +304,7 @@ ZipStaticWebpackPlugin.prototype.createApiBundleInfor = function (list, that) {
 
     offZipFileList.forEach(zipFile => {
         const zipFileName = zipFile.substring(zipFile.lastIndexOf('/') + 1);
-        const zipCdnPath = `${that.config.cdnHost}${that.config.urlPath}offzip`;
+        const zipCdnPath = path.join(that.config.zipHost, that.config.zipPath, 'offzip')
 
         let zipDiffVersion = zipFileName.split('.')[2];
 
@@ -323,7 +336,7 @@ ZipStaticWebpackPlugin.prototype.createApiBundleInfor = function (list, that) {
         }
     });
 
-    fs.outputJsonSync(`${cwd}/${that.config.src}/offzip/bundle.json`, resultJson);
+    fs.outputJsonSync(path.join(cwd, that.config.src, 'offzip/bundle.json'), resultJson);
 
 };
 
