@@ -35,6 +35,8 @@ function ZipStaticWebpackPlugin(opts) {
 
     this.config.datatype = opts.datatype || 1;
 
+    this.config.terminal_list = opts.terminal_list || [];
+
     this.config.compileVersion = version;
 
 
@@ -294,6 +296,7 @@ ZipStaticWebpackPlugin.prototype.createApiBundleInfor = function (list, that) {
 
     _.set(resultJson, 'module', that.config.module);
     _.set(resultJson, 'terminal_id', that.config.terminalid);
+    _.set(resultJson, 'terminal_list', that.config.terminal_list);
     _.set(resultJson, 'version', version);
     _.set(resultJson, 'data_type', that.config.datatype);
     _.set(resultJson, 'diff_list', []);
