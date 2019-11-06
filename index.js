@@ -269,20 +269,22 @@ ZipStaticWebpackPlugin.prototype.createZipBundleInfor = function () {
             const obj = {};
             const filePath = item.replace(`${offlineDir}/resource/`, '');
 
-            const htmlPath = item.replace(path.join(`${offlineDir}/resource/`, this.config.patchUrlPath), this.config.urlPath);
-            const staticPath = item.replace(path.join(`${offlineDir}/resource/`, this.config.patchCdnPath), this.config.cdnPath);
-
             _.set(obj, 'md5', md5File.sync(item));
 
             if (item.indexOf('.html') > 0) {
+                const htmlPath = item.replace(path.join(`${offlineDir}/resource/`, this.config.patchUrlPath), this.config.urlPath);
+
                 _.set(obj, 'url', `${this.config.pageHost}${htmlPath}`);
+            } else {
+                const staticPath = item.replace(path.join(`${offlineDir}/resource/`, this.config.patchCdnPath), this.config.cdnPath);
+
+                if (this.config.cdnHost) {
+                    _.set(obj, 'url', `${this.config.cdnHost}${staticPath}`);
+                } else {
+                    _.set(obj, 'url', `${this.config.pageHost}${staticPath}`);
+                }
             }
 
-            if (this.config.cdnHost && item.indexOf('.html') < 0) {
-                _.set(obj, 'url', `${this.config.cdnHost}${staticPath}`);
-            } else {
-                _.set(obj, 'url', `${this.config.pageHost}${staticPath}`);
-            }
 
             _.set(obj, 'file', filePath);
             _.set(obj, 'action', 1);
