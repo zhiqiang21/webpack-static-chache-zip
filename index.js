@@ -68,7 +68,7 @@ function ZipStaticWebpackPlugin(opts) {
     this.config.zipHost = opts.zipHost || opts.cdnHost || '';
 
     // zip path
-    this.config.zipPath = opts.zipPath || opts.cdnPath || '';
+    this.config.zipPath = opts.zipPath || this.config.cdnPath || '';
 
     // 编译产出目录
     this.config.src = opts.src || 'output';
