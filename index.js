@@ -67,10 +67,10 @@ function ZipStaticWebpackPlugin(opts) {
     // zipfile
     this.config.zipHost = opts.zipHost || opts.cdnHost || '';
 
-    //zip path
+    // zip path
     this.config.zipPath = opts.zipPath || opts.cdnPath || '';
 
-    //编译产出目录
+    // 编译产出目录
     this.config.src = opts.src || 'output';
 
 
@@ -266,13 +266,13 @@ ZipStaticWebpackPlugin.prototype.createZipBundleInfor = function () {
             _.set(obj, 'md5', md5File.sync(item));
 
             if (item.indexOf('.html') > 0) {
-                _.set(obj, 'url', path.join(this.config.pageHost, relativePath));
+                _.set(obj, 'url', `${this.config.pageHost}${relativePath}`);
             }
 
             if (this.config.cdnHost && item.indexOf('.html') < 0) {
-                _.set(obj, 'url', path.join(this.config.cdnHost, relativePath));
+                _.set(obj, 'url', `${this.config.cdnHost}${relativePath}`);
             } else {
-                _.set(obj, 'url', path.join(this.config.pageHost, relativePath));
+                _.set(obj, 'url', `${this.config.pageHost}${relativePath}`);
             }
 
             _.set(obj, 'file', filePath);
@@ -309,7 +309,7 @@ ZipStaticWebpackPlugin.prototype.createApiBundleInfor = function (list, that) {
 
     offZipFileList.forEach(zipFile => {
         const zipFileName = zipFile.substring(zipFile.lastIndexOf('/') + 1);
-        const zipCdnPath = path.join(that.config.zipHost, that.config.zipPath, 'offzip')
+        const zipCdnPath = `${that.config.cdnHost}${that.config.zipPath}offzip`;
 
         let zipDiffVersion = zipFileName.split('.')[2];
 
