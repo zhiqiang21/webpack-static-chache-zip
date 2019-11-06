@@ -72,6 +72,8 @@ function ZipStaticWebpackPlugin(opts) {
 
     //编译产出目录
     this.config.src = opts.src || 'output';
+
+
     this.config.zipConfig = opts.zipConfig || {};
     this.config.keepOffline = opts.keepOffline || false;
     this.config.beforeCopy = opts.beforeCopy || emptyFunc;

@@ -26,8 +26,8 @@ const AkWebpackPlugin = require('webpack-static-chache-zip');
     'zipFileName': 'offline',
     // 生成环境的代码源，默认值 `output` webpack编译产出生产环境代码的目录
     'src': 'output',
-    // TODO: 是否保留生成的离线包文件夹(zip包的源文件)  目前不支持
-    // 'keepOffline': true,
+    // 是否保留生成的离线包文件夹(zip包的源文件)
+    'keepOffline': true,
 
     // datatype: [必填] 1（Android乘客端），2（Android司机端），101（iOS乘客端），102（iOS司机端）
     // terminal_id 业务名称，比如乘客端钱包，不能重复 具体查看wiki  http://wiki.intra.xiaojukeji.com/pages/viewpage.action?pageId=118882082

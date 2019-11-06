@@ -56,11 +56,11 @@ exports.zipFiles = function (akPlugin, afterZipFn) {
             afterZipFn(zipFileNameList, akPlugin);
 
             // del offline folder
-            // let offlinePath = path.resolve(akPlugin.config.offlineDir);
+            let offlinePath = path.resolve(akPlugin.config.offlineDir);
 
-            // if (!akPlugin.config.keepOffline && fs.existsSync(offlinePath)) {
-            //     fs.remove(offlinePath);
-            // }
+            if (!akPlugin.config.keepOffline && fs.existsSync(offlinePath)) {
+                fs.remove(offlinePath);
+            }
         });
 
         // good practice to catch akPlugin error explicitly
