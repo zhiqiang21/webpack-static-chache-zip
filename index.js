@@ -58,11 +58,18 @@ function ZipStaticWebpackPlugin(opts) {
     // path url
     this.config.urlPath = opts.urlPath || '';
 
+    // 替换多余的url 路径
+    this.config.patchUrlPath = opts.patchUrlPath || '';
+
     // cdn域名
     this.config.cdnHost = opts.cdnHost || opts.pageHost || '';
 
     // cdn path
     this.config.cdnPath = opts.cdnPath || opts.urlPath || '';
+
+
+    // 替换多余的 cdn 路径
+    this.config.patchCdnPath = opts.patchCdnPath || '';
 
     // zipfile
     this.config.zipHost = opts.zipHost || opts.cdnHost || '';
@@ -260,19 +267,21 @@ ZipStaticWebpackPlugin.prototype.createZipBundleInfor = function () {
 
         files.forEach(item => {
             const obj = {};
-            const relativePath = item.replace(`${offlineDir}/resource/`, this.config.urlPath);
             const filePath = item.replace(`${offlineDir}/resource/`, '');
+
+            const htmlPath = item.replace(path.join(`${offlineDir}/resource/`, this.config.patchUrlPath), this.config.urlPath);
+            const staticPath = item.replace(path.join(`${offlineDir}/resource/`, this.config.patchCdnPath), this.config.cdnPath);
 
             _.set(obj, 'md5', md5File.sync(item));
 
             if (item.indexOf('.html') > 0) {
-                _.set(obj, 'url', `${this.config.pageHost}${relativePath}`);
+                _.set(obj, 'url', `${this.config.pageHost}${htmlPath}`);
             }
 
             if (this.config.cdnHost && item.indexOf('.html') < 0) {
-                _.set(obj, 'url', `${this.config.cdnHost}${relativePath}`);
+                _.set(obj, 'url', `${this.config.cdnHost}${staticPath}`);
             } else {
-                _.set(obj, 'url', `${this.config.pageHost}${relativePath}`);
+                _.set(obj, 'url', `${this.config.pageHost}${staticPath}`);
             }
 
             _.set(obj, 'file', filePath);

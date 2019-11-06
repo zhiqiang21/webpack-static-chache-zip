@@ -75,11 +75,19 @@ const AkWebpackPlugin = require('webpack-static-chache-zip');
     // urlpath
     'urlPath': '/global/passenger-wallet/',
 
+    // 这个字段和下面的 patchCdnPath 较为特殊。比如我们打包产出的路径   /xxxx/xx/output/aaa/bb/index.html  在上线的时候实际上是将output目录copy到了
+    // 服务器上 原理上我们的页面的url 应该是 https://page.didiglobal.com/aaa/bb/index.html  但是某些项目可能为了缩短路径查找 通过ngxin 配置 我们实际访问
+    // 的 https://page.didiglobal.com/index.html  所在在这里可以配置 patchUrlPath: 'aaa/bb'
+    'patchUrlPath': '',
+
     // cdn域名 静态文件域名（js/css/html） 如果不配置或者设置为空数组会默认使用pageHost
     'cdnHost': 'https://static.didiglobal.com',
 
     // cdnpath 如果不设置会默认使用 urlPath
     'cdnPath': '',
+
+    // 参考上面的patchUrlPath使用方法
+    'patchCdnPath': '',
 
     // zip文件的域名如果不设置会默认使用 cdnHost
     'zipHost': '',
