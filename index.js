@@ -271,6 +271,7 @@ ZipStaticWebpackPlugin.prototype.createZipBundleInfor = function () {
 
             _.set(obj, 'md5', md5File.sync(item));
 
+            // TODO: 待优化
             if (item.indexOf('.html') > 0) {
                 const htmlPath = item.replace(path.join(`${offlineDir}/resource/`, this.config.patchUrlPath), this.config.urlPath);
 
@@ -320,7 +321,7 @@ ZipStaticWebpackPlugin.prototype.createApiBundleInfor = function (list, that) {
 
     offZipFileList.forEach(zipFile => {
         const zipFileName = zipFile.substring(zipFile.lastIndexOf('/') + 1);
-        const zipCdnPath = `${that.config.cdnHost}${that.config.zipPath}offzip`;
+        const zipCdnPath = `${that.config.zipHost}${that.config.zipPath}offzip`;
 
         let zipDiffVersion = zipFileName.split('.')[2];
 
