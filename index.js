@@ -285,15 +285,17 @@ ZipStaticWebpackPlugin.prototype.createZipBundleInfor = function () {
             if (item.indexOf('.html') > 0) {
                 const htmlPath = item.replace(path.join(`${offlineDir}/resource/`, this.config.patchUrlPath), this.config.urlPath);
 
-                _.set(obj, 'url', `${this.config.pageHost}${htmlPath}`);
+                const pageURL = new URL(this.config.pageHost);
+
+                pageURL.pathname = htmlPath;
+
+                _.set(obj, 'url', pageURL.href);
             } else {
                 const staticPath = item.replace(path.join(`${offlineDir}/resource/`, this.config.patchCdnPath), this.config.cdnPath);
+                const staticURL = (this.config.cdnHost) ? new URL(this.config.cdnHost) : new URL(this.config.pageHost);
 
-                if (this.config.cdnHost) {
-                    _.set(obj, 'url', `${this.config.cdnHost}${staticPath}`);
-                } else {
-                    _.set(obj, 'url', `${this.config.pageHost}${staticPath}`);
-                }
+                staticURL.pathname = staticPath;
+                _.set(obj, 'url', staticURL.href);
             }
             jsonResult.resource.push(obj);
 
@@ -343,7 +345,15 @@ ZipStaticWebpackPlugin.prototype.createApiBundleInfor = function (list, that) {
 
     offZipFileList.forEach(zipFile => {
         const zipFileName = zipFile.substring(zipFile.lastIndexOf('/') + 1);
-        const zipCdnPath = `${that.config.zipHost}${that.config.zipPath}offzip`;
+        const zipHostURL = new URL(that.config.zipHost);
+
+        let zipPathURL = that.config.zipPath;
+
+        if (zipPathURL.lastIndexOf('/') !== (zipPathURL.length - 1)) {
+            zipPathURL += '/';
+        }
+
+        zipHostURL.pathname = `${zipPathURL}offzip`;
 
         let zipDiffVersion = zipFileName.split('.')[2];
 
@@ -354,14 +364,14 @@ ZipStaticWebpackPlugin.prototype.createApiBundleInfor = function (list, that) {
 
             resultJson.diff_list.push({
                 version: zipVersion === '-1' ? '-1' : zipDiffVersion,
-                url: `${zipCdnPath}/${zipFileName}`,
+                url: `${zipHostURL}/${zipFileName}`,
                 md5: md5Hash
             });
 
             // 缓存全量包的信息
             if (zipVersion === '-1') {
                 allMd5 = md5Hash;
-                allUrl = `${zipCdnPath}/${zipFileName}`;
+                allUrl = `${zipHostURL}/${zipFileName}`;
             }
         }
 
