@@ -30,13 +30,8 @@ exports.zipFiles = function (akPlugin, afterZipFn) {
 
         let zipPath = '';
 
-        if (zipFileName === 'offline') {
-            zipPath = path.resolve(`${akPlugin.config.desZipPath}/${zipFileName}.${akPlugin.config.compileVersion}.zip`);
-            zipFileNameList.push(`${zipFileName}.${akPlugin.config.compileVersion}.zip`);
-        } else {
-            zipPath = path.resolve(`${akPlugin.config.desZipPath}/${zipFileName}.zip`);
-            zipFileNameList.push(`${zipFileName}.zip`);
-        }
+        zipPath = path.resolve(`${akPlugin.config.desZipPath}/${zipFileName}.${akPlugin.config.compileVersion}.zip`);
+        zipFileNameList.push(`${zipFileName}.${akPlugin.config.compileVersion}.zip`);
 
         if (!fs.existsSync(srcPath)) {
             akPlugin.alert(srcPath + ' does not exists');
