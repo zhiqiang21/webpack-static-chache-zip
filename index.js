@@ -9,6 +9,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const chalk = require('chalk');
 const glob = require('glob');
+const {URL} = require('url');
 
 const moment = require('moment');
 const md5File = require('md5-file');
@@ -80,6 +81,8 @@ function ZipStaticWebpackPlugin(opts) {
     // 编译产出目录
     this.config.src = opts.src || 'output';
 
+    // 其它域名和host
+    this.config.otherHost = opts.otherHost || {};
 
     this.config.zipConfig = opts.zipConfig || {};
     this.config.keepOffline = opts.keepOffline || false;
@@ -263,13 +266,20 @@ ZipStaticWebpackPlugin.prototype.createZipBundleInfor = function () {
     _.set(jsonResult, 'diffversion', []);
     _.set(jsonResult, 'resource', []);
 
+
     this.iterateFiles(this.config.zipFileName, function (files) {
 
         files.forEach(item => {
             const obj = {};
+
             const filePath = item.replace(`${offlineDir}/resource/`, '');
 
             _.set(obj, 'md5', md5File.sync(item));
+            _.set(obj, 'file', filePath);
+            _.set(obj, 'action', 1);
+
+            // 1.默认是新增  2.是旧文件  做diff的时候使用的字段
+            _.set(obj, 'type', 1);
 
             // TODO: 待优化
             if (item.indexOf('.html') > 0) {
@@ -285,15 +295,26 @@ ZipStaticWebpackPlugin.prototype.createZipBundleInfor = function () {
                     _.set(obj, 'url', `${this.config.pageHost}${staticPath}`);
                 }
             }
-
-
-            _.set(obj, 'file', filePath);
-            _.set(obj, 'action', 1);
-
-            // 1.默认是新增  2.是旧文件  做diff的时候使用的字段
-            _.set(obj, 'type', 1);
-
             jsonResult.resource.push(obj);
+
+            const otherHost = this.config.otherHost;
+
+            if (otherHost && JSON.stringify(otherHost) !== '{}') {
+                const otherPage = _.get(this, 'config.otherHost.page', '');
+                const otherCdn = _.get(this, 'config.otherHost.cdn', '');
+                const deepCopyObj = _.cloneDeep(obj);
+                const urlName = new URL(deepCopyObj.url);
+
+                if (deepCopyObj.url.indexOf('.html') > -1 && otherPage) {
+                    urlName.host = otherPage;
+                } else {
+                    urlName.host = otherCdn;
+                }
+
+                _.set(deepCopyObj, 'url', urlName.href);
+
+                jsonResult.resource.push(deepCopyObj);
+            }
         });
 
         fs.outputJsonSync(path.join(offlineDir, 'bundle.json'), jsonResult);

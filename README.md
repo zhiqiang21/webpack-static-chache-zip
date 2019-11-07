@@ -30,9 +30,13 @@ const AkWebpackPlugin = require('webpack-static-chache-zip');
     'keepOffline': true,
 
     // datatype: [必填] 1（Android乘客端），2（Android司机端），101（iOS乘客端），102（iOS司机端）
+
+    'datatype': '',
     // terminal_id 业务名称，比如乘客端钱包，不能重复 具体查看wiki  http://wiki.intra.xiaojukeji.com/pages/viewpage.action?pageId=118882082
+
+    'terminal_id': '',
     // 如果存在一个data_type 对应多个terminal_id 的情况。 可以按照下面的方法以数组对象的方式列出来
-    'datatype': [
+    'terminal_list': [
         {
             data_type: 1
             terminal_id: 2
@@ -94,6 +98,17 @@ const AkWebpackPlugin = require('webpack-static-chache-zip');
 
     // zipPath  如果不设置会默认使用cdnPath
     'zipPath': '',
+
+
+    // 一个H5页面会跑在不同端内（比如我们巴西和global司机是两个单独的客户端），这两个端内的h5页面又有不同的
+    // page域名和static域名 这个时候可以通过otherHost配置来设置环境页面和静态文件的域名，
+    // 可以不设置或者为空
+    'otherHost': {
+      // 页面的域名
+      'page': 'page.99taxis.mobi',
+      // 可以设置单独的 cdn域名如果不设置则与page域名相同
+      'cdn': 'static.99taxis.mobi'
+    },
 
     // 压缩参数，详参 https://archiverjs.com
     'zipConfig': {zlib: {level: 9} },
