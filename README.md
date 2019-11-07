@@ -22,8 +22,7 @@ const AkWebpackPlugin = require('webpack-static-chache-zip');
     new AkWebpackPlugin({
     // 最终生成的离线包名称，默认值是 `offline`
     'offlineDir': 'offline',
-    // 全量zip包的文件名
-    'zipFileName': 'offline',
+
     // 生成环境的代码源，默认值 `output` webpack编译产出生产环境代码的目录
     'src': 'output',
     // 是否保留生成的离线包文件夹(zip包的源文件)

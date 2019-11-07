@@ -30,7 +30,7 @@ function ZipStaticWebpackPlugin(opts) {
     // 压缩文件的缓存目录
     this.config.offlineDir = opts.offlineDir || 'offline';
 
-    this.config.zipFileName = `${this.config.offlineDir}/${opts.zipFileName || 'offline'}`;
+    this.config.zipFileName = `${this.config.offlineDir}/offline`;
 
     this.config.terminalid = opts.terminalid || 1;
 
@@ -299,6 +299,7 @@ ZipStaticWebpackPlugin.prototype.createZipBundleInfor = function () {
 
             const otherHost = this.config.otherHost;
 
+            // 设置多域名
             if (otherHost && JSON.stringify(otherHost) !== '{}') {
                 const otherPage = _.get(this, 'config.otherHost.page', '');
                 const otherCdn = _.get(this, 'config.otherHost.cdn', '');
