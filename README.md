@@ -138,3 +138,4 @@ const AkWebpackPlugin = require('webpack-static-chache-zip');
 ### 2019.11.11
 1. 添加`deleteOffZip` 配置，可以在启动编译是删除 `offzip` 目录下的zip文件，防止zip文件过多不好管理；
 2. `diff.json`只保存**5**个版本的build信息，以及清除`diff.json`中多余的build文件信息；
+3. 第N次编译如果文件信息不发生变化，不生成空的diff目录和zip文件，也不对`diff.json`文件进行修改；

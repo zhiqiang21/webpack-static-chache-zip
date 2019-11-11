@@ -28,9 +28,13 @@ exports.createDiffInfo = function (akPlugin, newVersionNum, newVersionInfo) {
 
     diffInfoJson[newVersionNum] = newVersionInfo;
 
-    writeDiffInfo(diffInfoJson, diffPath);
+    akPlugin.config._diffInfoJson = diffInfoJson;
+    akPlugin.config._diffPath = diffPath;
 
     if (diffVersionList.length === 0) {
+        // 如果没有要发生diff的版本直接写入当前编译信息，编译结束
+        writeDiffInfo(akPlugin.config._diffInfoJson, akPlugin.config._diffPath);
+
         return;
     }
 
@@ -56,7 +60,7 @@ function writeDiffInfo(info, path) {
     } else {
 
         // 这里使用for 是为了清理之前diff文件信息
-        // 如果没有正常情况应该是 delete info[infoKeysArr[5]]
+        // 正常情况使用 delete info[infoKeysArr[5]] 就可以达到目的
         for (let i = 0; i < 5; i++) {
             const element = infoKeysArr[i];
 
@@ -130,15 +134,20 @@ function createBundleFile(akPlugin, currResource, nextV) {
     const shortId = shortid.generate();
     const diffBundlePath = path.join(cwd, 'offline', `diff.${shortId}.${nextV}/bundle.json`);
 
-    copyBundleFile(akPlugin, shortId, currResource, nextV);
-    fs.outputJsonSync(diffBundlePath, {
-        'name': akPlugin.config.module,
-        'version': akPlugin.config.compileVersion,
-        // 1. 全量包  2.增量包
-        'type': 2,
-        'resource': currResource
-    });
+    const copyFileCount =  copyBundleFile(akPlugin, shortId, currResource, nextV);
 
+    // 如果文件没有发生变化则不生成diff包和zip文件，也不对diff.json文件信息进行修改
+    if (copyFileCount) {
+        writeDiffInfo(akPlugin.config._diffInfoJson, akPlugin.config._diffPath);
+
+        fs.outputJsonSync(diffBundlePath, {
+            'name': akPlugin.config.module,
+            'version': akPlugin.config.compileVersion,
+            // 1. 全量包  2.增量包
+            'type': 2,
+            'resource': currResource
+        });
+    }
 }
 
 
@@ -149,8 +158,11 @@ function createBundleFile(akPlugin, currResource, nextV) {
  * @param {*} diffId
  * @param {*} filesInfo
  * @param {*} nextV
+ * @return {Array} 拷贝文件的个数
  */
 function copyBundleFile(akPlugin, diffId, filesInfo, nextV) {
+
+    let copyFileCount = 0;
 
     filesInfo.forEach(item => {
         const to = path.join(cwd, `offline/diff.${diffId}.${nextV}/resource/${item.file}`);
@@ -158,6 +170,9 @@ function copyBundleFile(akPlugin, diffId, filesInfo, nextV) {
 
         if (fs.existsSync(from) && item.type === 1) {
             fs.copySync(from, to);
+            copyFileCount += 1;
         }
     });
+
+    return copyFileCount;
 }
