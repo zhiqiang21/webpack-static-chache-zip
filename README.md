@@ -28,6 +28,9 @@ const AkWebpackPlugin = require('webpack-static-chache-zip');
     // 是否保留生成的离线包文件夹(zip包的源文件)
     'keepOffline': true,
 
+    // 开启编译时是否先清理offzip目录下的zip文件
+    'deleteOffZip': true,
+
     // datatype: [必填] 1（Android乘客端），2（Android司机端），101（iOS乘客端），102（iOS司机端）
 
     'datatype': '',
@@ -128,3 +131,8 @@ const AkWebpackPlugin = require('webpack-static-chache-zip');
     }
 })
 ```
+
+
+## 更新日志：
+
+1. 添加`deleteOffZip` 配置，可以在启动编译是删除 `offzip` 目录下的zip文件，防止zip文件过多不好管理；

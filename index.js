@@ -86,6 +86,10 @@ function ZipStaticWebpackPlugin(opts) {
 
     this.config.zipConfig = opts.zipConfig || {};
     this.config.keepOffline = opts.keepOffline || false;
+
+    // 防止 将多余的zip文件提交到git仓库
+    this.config.deleteOffZip = opts.deleteOffZip || true;
+
     this.config.beforeCopy = opts.beforeCopy || emptyFunc;
     this.config.afterCopy = opts.afterCopy || emptyFunc;
     this.config.beforeZip = opts.beforeZip || emptyFunc;
@@ -141,6 +145,20 @@ ZipStaticWebpackPlugin.prototype.alert = function (msg) {
 };
 
 
+// 删除offzip目录下多余的zip文件
+ZipStaticWebpackPlugin.prototype.removeOffZipFile = function () {
+    const cwd = process.cwd();
+    const offZipPath = path.join(cwd, this.config.desZipPath);
+    const zipFileList = glob.sync(`${offZipPath}/**/*.zip`);
+
+    this.config.deleteOffZip && zipFileList.length && (
+        zipFileList.forEach(path => {
+            fs.removeSync(path);
+        })
+    );
+};
+
+
 /**
  * [copy files to offline folder]
  */
@@ -156,7 +174,8 @@ ZipStaticWebpackPlugin.prototype.copyFiles = function () {
     const offleLineDir = path.join(cwd, this.config.offlineDir);
 
     fs.removeSync(offleLineDir);
-    // fs.removeSync(path.join(cwd, this.config.zipFileName + '.zip'));
+
+    this.removeOffZipFile();
 
     const globCopyFiles = glob.sync(`${cwd}/${this.config.src}/**/*.*(${this.config.cacheFileTypes.join('|')})`);
     const needCopyFiles = this.deleteExcludeFile(globCopyFiles);
