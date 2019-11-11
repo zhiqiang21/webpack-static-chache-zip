@@ -1,6 +1,6 @@
 {
   "name": "webpack-static-chache-zip",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "description": "static file zip to file and diff",
   "keywords": [],
   "homepage": "",
@@ -17,7 +17,8 @@
     "getDir.js",
     "index.js",
     "zip.js",
-    "README.md"
+    "README.md",
+    "sortObjKeys.js"
   ],
   "scripts": {},
   "dependencies": {

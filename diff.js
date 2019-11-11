@@ -7,6 +7,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const _ = require('lodash');
 const shortid = require('shortid');
+const _objectSort = require('./sortObjKeys');
 
 
 const cwd = process.cwd();
@@ -23,29 +24,48 @@ exports.createDiffInfo = function (akPlugin, newVersionNum, newVersionInfo) {
     diffInfo || fs.writeJsonSync(diffPath, {});
 
     const diffInfoJson = fs.readJsonSync(diffPath);
-    const diffVersionList = Object.keys(diffInfoJson);
+    const diffVersionList = _objectSort.sortObjKeys(diffInfoJson);
 
     diffInfoJson[newVersionNum] = newVersionInfo;
-    fs.outputJsonSync(diffPath, diffInfoJson);
+
+    writeDiffInfo(diffInfoJson, diffPath);
 
     if (diffVersionList.length === 0) {
         return;
     }
 
-    const floatVersion = diffVersionList.map(item => parseFloat(item));
-
-    floatVersion.sort((a, b) => {
-        return b - a;
-    });
-
-    // 只对5个版本做diff
-    floatVersion.length > 5 && (floatVersion.length = 5);
-
-    floatVersion.forEach(item => {
+    diffVersionList.forEach(item => {
         versionDiff(akPlugin, newVersionInfo, diffInfoJson[item], item);
     });
 
 };
+
+
+/**
+ * 将diff信息写入diff.json 并且只保留最多5个版本的diff信息
+ *
+ * @param {*} info 写入的信息
+ * @param {*} path 写入json文件的路径
+ */
+function writeDiffInfo(info, path) {
+    const infoKeysArr = _objectSort.sortObjKeys(info);
+    const resultInfo = {};
+
+    if (infoKeysArr.length <= 5) {
+        fs.outputJsonSync(path, info);
+    } else {
+
+        // 这里使用for 是为了清理之前diff文件信息
+        // 如果没有正常情况应该是 delete info[infoKeysArr[5]]
+        for (let i = 0; i < 5; i++) {
+            const element = infoKeysArr[i];
+
+            resultInfo[element] = info[element];
+        }
+
+        fs.outputJsonSync(path, resultInfo);
+    }
+}
 
 
 /**
