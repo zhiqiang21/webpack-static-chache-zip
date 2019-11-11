@@ -74,6 +74,10 @@ const AkWebpackPlugin = require('webpack-static-chache-zip');
     // 接入是也请登记自己的module
     'module': 'passenger-wallet',
 
+
+    // path.join('项目根目录', diffJsonDest, `diff.json`) 默认是 path.join('src', 'offzip', 'diff.json')
+    'diffJsonDest': '',
+
     // 页面域名 ,可以配置多个域名，主要适用于一个文件上线后可能被多个域名使用的场景
     // 比如： https://aaaa.com/a.html 和 https://bbbb.com/a.html  其实访问是同一个文件只是由于业务场景的不同使用不同的域名
     'pageHost': 'https://page.didiglobal.com',
@@ -139,3 +143,4 @@ const AkWebpackPlugin = require('webpack-static-chache-zip');
 1. 添加`deleteOffZip` 配置，可以在启动编译是删除 `offzip` 目录下的zip文件，防止zip文件过多不好管理；
 2. `diff.json`只保存**5**个版本的build信息，以及清除`diff.json`中多余的build文件信息；
 3. 第N次编译如果文件信息不发生变化，不生成空的diff目录和zip文件，也不对`diff.json`文件进行修改；
+4. `diff.json`的位置可以配置；

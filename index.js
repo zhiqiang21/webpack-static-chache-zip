@@ -52,6 +52,10 @@ function ZipStaticWebpackPlugin(opts) {
 
     // 将生成的离线包资源保存到output 的offzip 目录下
     this.config.desZipPath = `${opts.src}/offzip`;
+
+    // 设置diff.json的位置
+    this.config.diffJsonDest = opts.diffJsonDest || `${this.config.desZipPath}`;
+
     this.config.module = opts.module || '';
     // 页面域名
     this.config.pageHost = opts.pageHost || '';

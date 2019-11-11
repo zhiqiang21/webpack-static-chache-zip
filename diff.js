@@ -15,7 +15,7 @@ const cwd = process.cwd();
 
 exports.createDiffInfo = function (akPlugin, newVersionNum, newVersionInfo) {
     const cwd = process.cwd();
-    const diffPath = path.join(cwd, akPlugin.config.src, 'offzip/diff.json');
+    const diffPath = path.join(cwd, akPlugin.config.diffJsonDest, `diff.json`);
 
     fs.ensureFileSync(diffPath);
 
