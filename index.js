@@ -50,8 +50,11 @@ function ZipStaticWebpackPlugin(opts) {
     // 默认缓存文件的类型
     this.config.cacheFileTypes = opts.cacheFileTypes ? opts.cacheFileTypes.concat(defaultCacheFileTypes) : defaultCacheFileTypes;
 
+    // zip文件缓存的目录名
+    this.config.zipFileDir = opts.zipFileDir || 'offzip';
+
     // 将生成的离线包资源保存到output 的offzip 目录下
-    this.config.desZipPath = `${opts.src}/offzip`;
+    this.config.desZipPath = `${opts.src}/${this.config.zipFileDir}`;
 
     // 设置diff.json的位置
     this.config.diffJsonDest = opts.diffJsonDest || `${this.config.desZipPath}`;
@@ -376,7 +379,7 @@ ZipStaticWebpackPlugin.prototype.createApiBundleInfor = function (list, that) {
             zipPathURL += '/';
         }
 
-        zipHostURL.pathname = `${zipPathURL}offzip`;
+        zipHostURL.pathname = `${zipPathURL}${that.config.zipFileDir}`;
 
         let zipDiffVersion = zipFileName.split('.')[2];
 
@@ -408,7 +411,7 @@ ZipStaticWebpackPlugin.prototype.createApiBundleInfor = function (list, that) {
         }
     });
 
-    fs.outputJsonSync(path.join(cwd, that.config.src, 'offzip/bundle.json'), resultJson);
+    fs.outputJsonSync(path.join(cwd, that.config.src, `${that.config.zipFileDir}/bundle.json`), resultJson);
 
 };
 
