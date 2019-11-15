@@ -132,7 +132,7 @@ function versionDiff(akPlugin, current, next, nextV) {
  */
 function createBundleFile(akPlugin, currResource, nextV) {
     const shortId = shortid.generate();
-    const diffBundlePath = path.join(cwd, 'offline', `diff.${shortId}.${nextV}/bundle.json`);
+    const diffBundlePath = path.join(cwd, akPlugin.config.offlineDir, `diff.${shortId}.${nextV}/bundle.json`);
 
     const copyFileCount =  copyBundleFile(akPlugin, shortId, currResource, nextV);
 
@@ -165,7 +165,7 @@ function copyBundleFile(akPlugin, diffId, filesInfo, nextV) {
     let copyFileCount = 0;
 
     filesInfo.forEach(item => {
-        const to = path.join(cwd, `offline/diff.${diffId}.${nextV}/resource/${item.file}`);
+        const to = path.join(cwd, `${akPlugin.config.offlineDir}/diff.${diffId}.${nextV}/resource/${item.file}`);
         const from = path.join(cwd, `${akPlugin.config.src}/${item.file}`);
 
         if (fs.existsSync(from) && item.type === 1) {
