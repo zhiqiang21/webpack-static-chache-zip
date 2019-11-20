@@ -8,4 +8,4 @@ const test = new URL('https://static.didiglobal.com');
 
 // test.host = 'static.didiglobal.com';
 test.pathname = '/global/passenger-wallet/static/js/zh-CN_df9bed7.js';
-console.log(`test`, test.href);
+console.log(`test` + 1, test.href);

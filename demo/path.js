@@ -17,3 +17,13 @@ let aaaa = 'html/pages/passenger-index-new.html';
 
 console.log(`str`, aaaa.replace('html/pages', ''));
 console.log(`aaa`, aaaa);
+
+
+/**
+ ** sssssssss
+ *! @param {*} a
+ *? @param {*} b
+ */
+function abc(a, b) {
+
+}
