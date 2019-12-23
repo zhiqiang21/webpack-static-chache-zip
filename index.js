@@ -40,6 +40,9 @@ function ZipStaticWebpackPlugin(opts) {
 
     this.config.compileVersion = version;
 
+    // 是否将html url 模糊匹配
+    this.config.fuzzyHtmlExtend = opts.fuzzyHtmlExtend || false;
+
 
     // 不缓存的文件和目录
     this.config.excludeFile = opts.excludeFile || [];
@@ -278,6 +281,67 @@ ZipStaticWebpackPlugin.prototype.deleteExcludeFile = function (files) {
     return includeArr;
 };
 
+// 根据otherHost 设置多域名
+ZipStaticWebpackPlugin.prototype.setMoreHost = function (_this, obj) {
+    const otherPage = _.get(_this, 'config.otherHost.page', '');
+    const otherCdn = _.get(_this, 'config.otherHost.cdn', '');
+    const resultArr = [];
+
+    if (Array.isArray(otherPage) || Array.isArray(otherCdn)) {
+        for (let i = 0; i < otherPage.length; i++) {
+            const deepCopyObj = _.cloneDeep(obj);
+            const urlName = new URL(deepCopyObj.url);
+            const itemPage = otherPage[i];
+            const itemCdn = otherCdn[i];
+
+            if (deepCopyObj.url.indexOf('.html') > -1 && otherPage) {
+                urlName.host = itemPage;
+            } else {
+                itemCdn && (urlName.host = itemCdn);
+            }
+
+            _.set(deepCopyObj, 'url', urlName.href);
+            resultArr.push(deepCopyObj);
+        }
+
+        return resultArr;
+    } else {
+        const deepCopyObj = _.cloneDeep(obj);
+        const urlName = new URL(deepCopyObj.url);
+
+        if (deepCopyObj.url.indexOf('.html') > -1 && otherPage) {
+            urlName.host = otherPage;
+        } else {
+            urlName.host = otherCdn;
+        }
+
+        _.set(deepCopyObj, 'url', urlName.href);
+
+        resultArr.push(deepCopyObj);
+        return resultArr;
+    }
+};
+
+// 将html文件名扩展 https://xxx/x/index.html 解析成 https://xxx/x/ 和 https://xxx/x 和 https://xxx/x/index.htm
+ZipStaticWebpackPlugin.prototype.fuzzyHtmlExtendFn = function (jsonResult, obj) {
+    if (obj.url.indexOf('index.html') < 0) {
+        return;
+    }
+
+    const obj1 = _.cloneDeep(obj);
+    const obj2 = _.cloneDeep(obj);
+    const obj3 = _.cloneDeep(obj);
+
+    obj1.url = obj1.url.substring(0, obj1.url.length - 1);
+    obj2.url = obj2.url.substring(0, obj2.url.lastIndexOf('/') + 1);
+    obj3.url = obj3.url.substring(0, obj3.url.lastIndexOf('/'));
+
+    jsonResult.resource.push(obj1);
+    jsonResult.resource.push(obj2);
+    jsonResult.resource.push(obj3);
+};
+
+
 //  将zip包的信息写入bundle.json文件
 ZipStaticWebpackPlugin.prototype.createZipBundleInfor = function () {
     const jsonResult = {};
@@ -307,7 +371,6 @@ ZipStaticWebpackPlugin.prototype.createZipBundleInfor = function () {
             // 1.默认是新增  2.是旧文件  做diff的时候使用的字段
             _.set(obj, 'type', 1);
 
-            // TODO: 待优化
             if (item.indexOf('.html') > 0) {
                 const htmlPath = item.replace(path.join(`${offlineDir}/resource/`, this.config.patchUrlPath), this.config.urlPath);
 
@@ -316,6 +379,8 @@ ZipStaticWebpackPlugin.prototype.createZipBundleInfor = function () {
                 pageURL.pathname = htmlPath;
 
                 _.set(obj, 'url', pageURL.href);
+
+                this.config.fuzzyHtmlExtend && this.fuzzyHtmlExtendFn(jsonResult, obj);
             } else {
                 const staticPath = item.replace(path.join(`${offlineDir}/resource/`, this.config.patchCdnPath), this.config.cdnPath);
                 const staticURL = (this.config.cdnHost) ? new URL(this.config.cdnHost) : new URL(this.config.pageHost);
@@ -325,24 +390,9 @@ ZipStaticWebpackPlugin.prototype.createZipBundleInfor = function () {
             }
             jsonResult.resource.push(obj);
 
-            const otherHost = this.config.otherHost;
-
             // 设置多域名
-            if (otherHost && JSON.stringify(otherHost) !== '{}') {
-                const otherPage = _.get(this, 'config.otherHost.page', '');
-                const otherCdn = _.get(this, 'config.otherHost.cdn', '');
-                const deepCopyObj = _.cloneDeep(obj);
-                const urlName = new URL(deepCopyObj.url);
-
-                if (deepCopyObj.url.indexOf('.html') > -1 && otherPage) {
-                    urlName.host = otherPage;
-                } else {
-                    urlName.host = otherCdn;
-                }
-
-                _.set(deepCopyObj, 'url', urlName.href);
-
-                jsonResult.resource.push(deepCopyObj);
+            if (this.config.otherHost && JSON.stringify(this.config.otherHost) !== '{}') {
+                jsonResult.resource = jsonResult.resource.concat(this.setMoreHost(this, obj, jsonResult));
             }
         });
 

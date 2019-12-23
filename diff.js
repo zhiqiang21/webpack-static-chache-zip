@@ -117,7 +117,11 @@ function versionDiff(akPlugin, current, next, nextV) {
             element.type = 2;
 
             // 过滤掉html旧文件信息，防止客户端删除旧文件时将新文件也删除
-            (element.url.indexOf('.html') >= 0) || (deleteArr.push(element));
+            // /^http[s]?:\/\/[\s\S]*\.(js|css)$/ 只匹配js 和css文件
+            // (element.url.indexOf('.html') >= 0) || (deleteArr.push(element));
+            if (/^http[s]?:\/\/[\s\S]*\.(js|css)$/.test(element.url)) {
+                deleteArr.push(element)
+            }
         }
     }
 
