@@ -28,6 +28,9 @@ const AkWebpackPlugin = require('webpack-static-chache-zip');
     // 是否保留生成的离线包文件夹(zip包的源文件)
     'keepOffline': true,
 
+    // 模糊匹配html扩展名， http://xxxx/xx http://xxxx/xx/ http://xxxx/xx/index.html http://xxxx/xx/index.htm
+    'fuzzyHtmlExtend': true,
+
     // 开启编译时是否先清理offzip目录下的zip文件
     'deleteOffZip': true,
 
@@ -110,9 +113,10 @@ const AkWebpackPlugin = require('webpack-static-chache-zip');
     // page域名和static域名 这个时候可以通过otherHost配置来设置环境页面和静态文件的域名，
     // 可以不设置或者为空
     'otherHost': {
-      // 页面的域名
+      // 页面的域名  [xxx, xxxx]
       'page': 'page.99taxis.mobi',
       // 可以设置单独的 cdn域名如果不设置则与page域名相同
+      //  [xxx, xxxx] 会检查与上面page域名数组长度是否相同，如果不同会以 cdnHost 补全
       'cdn': 'static.99taxis.mobi'
     },
 
@@ -138,6 +142,11 @@ const AkWebpackPlugin = require('webpack-static-chache-zip');
 
 
 ## 更新日志：
+
+### 2019.12.23
+1. 多域名支持配置更多的域名。使用方法参考文档；
+2. 对html域名进行衍生，比如`http://xxx/xx/index.html`，会衍生出 `http://xxx/xx` 和 `http://xxx/xx/` 和 `http://xxx/xx/index.htm`；
+3.
 
 ### 2019.11.13
 1. 插件支持多实例（可以`new` 多次），可以根据每次的配置生成不同的zip包；

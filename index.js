@@ -336,9 +336,36 @@ ZipStaticWebpackPlugin.prototype.fuzzyHtmlExtendFn = function (jsonResult, obj) 
     obj2.url = obj2.url.substring(0, obj2.url.lastIndexOf('/') + 1);
     obj3.url = obj3.url.substring(0, obj3.url.lastIndexOf('/'));
 
-    jsonResult.resource.push(obj1);
-    jsonResult.resource.push(obj2);
-    jsonResult.resource.push(obj3);
+    const tempArr = [obj1, obj2, obj3];
+    const fuzzyHostArr = [];
+
+    const otherPage = _.get(this, "config.otherHost.page", "");
+
+    if(Array.isArray(otherPage)) {
+        for (let i = 0; i < otherPage.length; i++) {
+            const itemPage = otherPage[i];
+            for (let m = 0; m < tempArr.length; m++) {
+              const temp = _.cloneDeep(tempArr[m]);
+              const urlString = new URL(temp.url);
+
+              urlString.host = itemPage;
+              temp.url = urlString.href;
+              fuzzyHostArr.push(temp);
+            }
+        }
+    } else {
+        for (let m = 0; m < tempArr.length; m++) {
+            const item = _.cloneDeep(tempArr[m]);
+            const urlString = new URL(item.url);
+
+            urlString.host = otherPage;
+            item.url = urlString.href;
+            fuzzyHostArr.push(item);
+        }
+    }
+    jsonResult.resource = jsonResult.resource.concat(
+      fuzzyHostArr.concat(tempArr)
+    );
 };
 
 
