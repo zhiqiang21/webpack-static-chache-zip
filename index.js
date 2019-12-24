@@ -291,6 +291,16 @@ ZipStaticWebpackPlugin.prototype.setMoreHost = function (_this, obj) {
     const resultArr = [];
 
     if (Array.isArray(otherPage) || Array.isArray(otherCdn)) {
+
+        // 当otherCDN和 otherPage不一致是使用 cdnHost补全
+        if(otherPage.length !== otherCdn.length) {
+            for (let k = 0; k < otherPage.length; k++) {
+              if(!otherCdn[k]) {
+                otherCdn[k] = this.config.cdnHost;
+              }
+            }
+        }
+
         for (let i = 0; i < otherPage.length; i++) {
             const deepCopyObj = _.cloneDeep(obj);
             const urlName = new URL(deepCopyObj.url);

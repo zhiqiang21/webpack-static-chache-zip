@@ -113,6 +113,7 @@ const AkWebpackPlugin = require('webpack-static-chache-zip');
     // page域名和static域名 这个时候可以通过otherHost配置来设置环境页面和静态文件的域名，
     // 可以不设置或者为空
     'otherHost': {
+      // page和cdn均支持配置数组，如果只有一个额外的域名建议如下配置为字符串，如果要支持多个，则配置为数组的形式
       // 页面的域名  [xxx, xxxx]
       'page': 'page.99taxis.mobi',
       // 可以设置单独的 cdn域名如果不设置则与page域名相同
