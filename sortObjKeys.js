@@ -14,7 +14,6 @@
 exports.sortObjKeys = function (sortObj) {
     const objKesList = Object.keys(sortObj);
 
-
     if (objKesList.length === 0) {
         return [];
     }

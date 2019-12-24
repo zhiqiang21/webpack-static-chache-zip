@@ -21,6 +21,9 @@ const diffMapObj = require('./diff');
 const version = moment().format('YYYYMMDDHHmmss');
 const pluginName = 'ZipStaticWebpackPlugin';
 
+// 匹配以 .html或者是.htm 结尾的字符串
+const tegTestUrlIsHtml = /[\w\/]*\.(html|htm)$/;
+
 
 function ZipStaticWebpackPlugin(opts) {
     const defaultCacheFileTypes = ['js', 'html', 'css'];
@@ -294,7 +297,7 @@ ZipStaticWebpackPlugin.prototype.setMoreHost = function (_this, obj) {
             const itemPage = otherPage[i];
             const itemCdn = otherCdn[i];
 
-            if (deepCopyObj.url.indexOf('.html') > -1 && otherPage) {
+            if (tegTestUrlIsHtml.test(deepCopyObj.url) && otherPage) {
                 urlName.host = itemPage;
             } else {
                 itemCdn && (urlName.host = itemCdn);
@@ -309,7 +312,7 @@ ZipStaticWebpackPlugin.prototype.setMoreHost = function (_this, obj) {
         const deepCopyObj = _.cloneDeep(obj);
         const urlName = new URL(deepCopyObj.url);
 
-        if (deepCopyObj.url.indexOf('.html') > -1 && otherPage) {
+        if (tegTestUrlIsHtml.test(deepCopyObj.url) && otherPage) {
             urlName.host = otherPage;
         } else {
             urlName.host = otherCdn;
@@ -398,7 +401,7 @@ ZipStaticWebpackPlugin.prototype.createZipBundleInfor = function () {
             // 1.默认是新增  2.是旧文件  做diff的时候使用的字段
             _.set(obj, 'type', 1);
 
-            if (item.indexOf('.html') > 0) {
+            if (tegTestUrlIsHtml.test(item)) {
                 const htmlPath = item.replace(path.join(`${offlineDir}/resource/`, this.config.patchUrlPath), this.config.urlPath);
 
                 const pageURL = new URL(this.config.pageHost);
