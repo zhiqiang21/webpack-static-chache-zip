@@ -31,9 +31,12 @@ exports.createDiffInfo = function (akPlugin, newVersionNum, newVersionInfo) {
     akPlugin.config._diffInfoJson = diffInfoJson;
     akPlugin.config._diffPath = diffPath;
 
+    // 如果没有要发生diff的版本直接写入当前编译信息，编译结束
+    // 此时应该是第一次编译的全量包
     if (diffVersionList.length === 0) {
-        // 如果没有要发生diff的版本直接写入当前编译信息，编译结束
         writeDiffInfo(akPlugin.config._diffInfoJson, akPlugin.config._diffPath);
+
+        akPlugin.warn('after online you code ,please execute push script!');
 
         return;
     }
@@ -144,6 +147,8 @@ function createBundleFile(akPlugin, currResource, nextV) {
     if (copyFileCount) {
         writeDiffInfo(akPlugin.config._diffInfoJson, akPlugin.config._diffPath);
 
+        akPlugin.warn('after online you code ,please execute push script!');
+
         fs.outputJsonSync(diffBundlePath, {
             'name': akPlugin.config.module,
             'version': akPlugin.config.compileVersion,
@@ -151,6 +156,8 @@ function createBundleFile(akPlugin, currResource, nextV) {
             'type': 2,
             'resource': currResource
         });
+    } else {
+        akPlugin.warn('this compile file info not change , don\'t  execute push script！')
     }
 }
 

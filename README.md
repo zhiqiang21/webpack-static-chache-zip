@@ -147,7 +147,7 @@ const AkWebpackPlugin = require('webpack-static-chache-zip');
 ### 2019.12.23
 1. 多域名支持配置更多的域名。使用方法参考文档；
 2. 对html域名进行衍生，比如`http://xxx/xx/index.html`，会衍生出 `http://xxx/xx` 和 `http://xxx/xx/` 和 `http://xxx/xx/index.htm`；
-3.
+3. 针对编译完成后是否需要执行 `push `脚本进行提示；
 
 ### 2019.11.13
 1. 插件支持多实例（可以`new` 多次），可以根据每次的配置生成不同的zip包；
