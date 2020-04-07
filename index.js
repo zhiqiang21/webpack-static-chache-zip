@@ -86,7 +86,7 @@ function ZipStaticWebpackPlugin(opts) {
     this.config.patchCdnPath = opts.patchCdnPath || '';
 
     // zipfile
-    this.config.zipHost = opts.zipHost || opts.cdnHost || '';
+    this.config.zipHost = opts.zipHost || opts.cdnHost || opts.pageHost;
 
     // zip path
     this.config.zipPath = opts.zipPath || this.config.cdnPath || '';
