@@ -284,57 +284,6 @@ ZipStaticWebpackPlugin.prototype.deleteExcludeFile = function (files) {
     return includeArr;
 };
 
-// 根据otherHost 设置多域名
-ZipStaticWebpackPlugin.prototype.setMoreHost = function (_this, obj) {
-    const otherPage = _.get(_this, 'config.otherHost.page', '');
-    const otherCdn = _.get(_this, 'config.otherHost.cdn', '');
-    const resultArr = [];
-
-    if (Array.isArray(otherPage) || Array.isArray(otherCdn)) {
-
-        // 当otherCDN和 otherPage不一致是使用 cdnHost补全
-        if(otherPage.length !== otherCdn.length) {
-            for (let k = 0; k < otherPage.length; k++) {
-              if(!otherCdn[k]) {
-                otherCdn[k] = this.config.cdnHost;
-              }
-            }
-        }
-
-        for (let i = 0; i < otherPage.length; i++) {
-            const deepCopyObj = _.cloneDeep(obj);
-            const urlName = new URL(deepCopyObj.url);
-            const itemPage = otherPage[i];
-            const itemCdn = otherCdn[i];
-
-            if (tegTestUrlIsHtml.test(deepCopyObj.url) && otherPage) {
-                urlName.host = itemPage;
-            } else {
-                itemCdn && (urlName.host = itemCdn);
-            }
-
-            _.set(deepCopyObj, 'url', urlName.href);
-            resultArr.push(deepCopyObj);
-        }
-
-        return resultArr;
-    } else {
-        const deepCopyObj = _.cloneDeep(obj);
-        const urlName = new URL(deepCopyObj.url);
-
-        if (tegTestUrlIsHtml.test(deepCopyObj.url) && otherPage) {
-            urlName.host = otherPage;
-        } else {
-            urlName.host = otherCdn;
-        }
-
-        _.set(deepCopyObj, 'url', urlName.href);
-
-        resultArr.push(deepCopyObj);
-        return resultArr;
-    }
-};
-
 // 将html文件名扩展 https://xxx/x/index.html 解析成 https://xxx/x/ 和 https://xxx/x 和 https://xxx/x/index.htm
 ZipStaticWebpackPlugin.prototype.fuzzyHtmlExtendFn = function (jsonResult, obj) {
     if (obj.url.indexOf('index.html') < 0) {
@@ -430,9 +379,25 @@ ZipStaticWebpackPlugin.prototype.createZipBundleInfor = function () {
             }
             jsonResult.resource.push(obj);
 
-            // 设置多域名
-            if (this.config.otherHost && JSON.stringify(this.config.otherHost) !== '{}') {
-                jsonResult.resource = jsonResult.resource.concat(this.setMoreHost(this, obj, jsonResult));
+            const otherHost = this.config.otherHost;
+            const otherHostPage = _.get(otherHost, 'page', '');
+            const otherHostCdn = _.get(otherHost, 'cdn', '');
+
+            // 设置多域名 如果配置的是字符串
+            if (otherHostPage && !Array.isArray(otherHostPage)) {
+                const otherPageInfo = this.setMoreHostFn(otherHostPage, otherHostCdn, obj);
+
+                jsonResult.resource.push(otherPageInfo);
+            }
+
+            // 多域名配置的数组
+            if (otherHostPage && Array.isArray(otherHostPage)) {
+                for (let item = 0; item < otherHostPage.length; item++) {
+                    const itemPage = otherHostPage[item];
+                    const itemCdn = otherHostCdn[item];
+                    const otherPageInfo = this.setMoreHostFn(itemPage, itemCdn, obj);
+                    jsonResult.resource.push(otherPageInfo);
+                }
             }
         });
 
@@ -441,6 +406,44 @@ ZipStaticWebpackPlugin.prototype.createZipBundleInfor = function () {
         diffMapObj.createDiffInfo(this, version, jsonResult);
     });
 };
+
+
+// 去除url前缀
+ZipStaticWebpackPlugin.prototype.deleteUrlProtocol = function(url) {
+    // 判断page host 和cdnur 是否带http前缀
+    const protocolPrefReg = /^http[s]?:/;
+
+    if(!protocolPrefReg.test(url)){
+        return url;
+    }
+
+    const urlObj = new URL(url);
+
+    return urlObj.host;
+}
+
+
+/**
+ * 设置多域名
+ */
+ZipStaticWebpackPlugin.prototype.setMoreHostFn = function (pageURL, cdnURL, obj) {
+
+
+
+    const deepCopyObj = _.cloneDeep(obj);
+    const urlName = new URL(deepCopyObj.url);
+
+    if (deepCopyObj.url.indexOf('.html') > -1 && pageURL) {
+        urlName.host = this.deleteUrlProtocol(pageURL);
+    } else {
+        urlName.host = this.deleteUrlProtocol(cdnURL);
+    }
+
+    _.set(deepCopyObj, 'url', urlName.href);
+
+    return deepCopyObj
+}
+
 
 // 将打包的信息写入  api.budnle.json
 ZipStaticWebpackPlugin.prototype.createApiBundleInfor = function (list, that) {
